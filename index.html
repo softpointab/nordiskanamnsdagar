@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nordiska Namnsdagar</title>
+  <style>
+    :root {
+      --blue: #006AA7;
+      --yellow: #FECC02;
+      --light-blue: #dceefb;
+      --text: #1a1a2e;
+      --white: #ffffff;
+      --gray: #f4f6f9;
+      --border: #d0d7de;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--gray);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--blue);
+      color: var(--white);
+      padding: 1.2rem 2rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 0.2rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    /* Today card */
+    .today-card {
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      border-top: 5px solid var(--yellow);
+      box-shadow: 0 2px 8px rgba(0, 106, 167, 0.3);
+    }
+
+    .today-card .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      opacity: 0.75;
+      margin-bottom: 0.4rem;
+    }
+
+    .today-card .date {
+      font-size: 1.2rem;
+      margin-bottom: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .today-card .names {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+
+    .today-card .no-nameday {
+      font-size: 1.3rem;
+      opacity: 0.65;
+      font-style: italic;
+    }
+
+    /* Search section */
+    .search-section {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-section h2 {
+      font-size: 1rem;
+      color: var(--blue);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-row input:focus {
+      border-color: var(--blue);
+    }
+
+    .search-row button {
+      padding: 0.65rem 1.4rem;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .search-row button:hover {
+      background: #005a8e;
+    }
+
+    .search-result {
+      margin-top: 1rem;
+      padding: 0.9rem 1.1rem;
+      border-radius: 8px;
+      display: none;
+      font-size: 0.95rem;
+    }
+
+    .search-result.found {
+      background: var(--light-blue);
+      border-left: 4px solid var(--blue);
+    }
+
+    .search-result.not-found {
+      background: #fff3cd;
+      border-left: 4px solid #f0a500;
+    }
+
+    /* Calendar grid */
+    .calendar-section h2 {
+      font-size: 1.3rem;
+      color: var(--blue);
+      margin-bottom: 1.2rem;
+      font-weight: 700;
+    }
+
+    .months-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .month-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .month-header {
+      background: var(--blue);
+      color: var(--white);
+      padding: 0.75rem 1.2rem;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+    }
+
+    .days-list {
+      padding: 0.4rem 0.5rem;
+    }
+
+    .day-row {
+      display: grid;
+      grid-template-columns: 2.2rem 1fr;
+      gap: 0.5rem;
+      padding: 0.28rem 0.6rem;
+      border-radius: 6px;
+      align-items: baseline;
+    }
+
+    .day-row:hover {
+      background: var(--light-blue);
+    }
+
+    .day-row.today {
+      background: var(--yellow);
+      font-weight: 600;
+    }
+
+    .day-num {
+      color: var(--blue);
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-align: right;
+    }
+
+    .day-row.today .day-num {
+      color: #555;
+    }
+
+    .day-names {
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+
+    .day-row.no-name .day-names {
+      color: #aaa;
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #777;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.3rem; }
+      .today-card .names { font-size: 1.6rem; }
+      .months-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>&#10010; Nordiska Namnsdagar</h1>
+  <p>Svenska namnsdagar för hela året</p>
+</header>
+
+<main>
+  <div class="today-card" id="today-card"></div>
+
+  <div class="search-section">
+    <h2>&#128269; Sök namnsdagsnamn</h2>
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Skriv ett namn…" aria-label="Sök namnsdagsnamn">
+      <button onclick="searchName()">Sök</button>
+    </div>
+    <div class="search-result" id="search-result"></div>
+  </div>
+
+  <div class="calendar-section">
+    <h2>&#128197; Alla namnsdagar</h2>
+    <div class="months-grid" id="months-grid"></div>
+  </div>
+</main>
+
+<footer>
+  <p>Svenska namnsdagar &mdash; officiell kalender</p>
+</footer>
+
+<script>
+// Swedish name days — official calendar (Svenska Akademien, revised 2001)
+const NAMEDAYS = [
+  null, // index 0 unused; months are 1–12
+  { // Januari
+    1:  [],
+    2:  ["Svea"],
+    3:  ["Alfred", "Alfrida"],
+    4:  ["Rut"],
+    5:  ["Sigurd", "Sigbritt"],
+    6:  ["Kasper", "Melker", "Baltsar"],
+    7:  ["August", "Augusta"],
+    8:  ["Erland"],
+    9:  ["Gunnar", "Gunder"],
+    10: ["Sigrid"],
+    11: ["Gösta"],
+    12: ["Frideborg", "Fridolf"],
+    13: ["Knut"],
+    14: ["Felix", "Felicia"],
+    15: ["Laura", "Lovisa"],
+    16: ["Hjalmar", "Helmer"],
+    17: ["Anton", "Tony"],
+    18: ["Lisbeth", "Elisabet"],
+    19: ["Henrik"],
+    20: ["Fabian", "Sebastian"],
+    21: ["Agnes", "Agneta"],
+    22: ["Vincent"],
+    23: ["Frej", "Freja"],
+    24: ["Erika"],
+    25: ["Paul", "Pål"],
+    26: ["Timoteus"],
+    27: ["Göte", "Göta"],
+    28: ["Karl", "Carla"],
+    29: ["Diana"],
+    30: ["Gunhild", "Gunilla"],
+    31: ["Ivar", "Joar"]
+  },
+  { // Februari
+    1:  ["Max", "Maximilian"],
+    2:  ["Arita", "Ingela"],
+    3:  ["Disa", "Hjördis"],
+    4:  ["Ansgar", "Oscar"],
+    5:  ["Agata", "Agda"],
+    6:  ["Dorotea", "Dorit"],
+    7:  ["Rikard", "Dick"],
+    8:  ["Berta", "Britta"],
+    9:  ["Fanny", "Franciska"],
+    10: ["Iris"],
+    11: ["Yngve", "Inge"],
+    12: ["Evelina", "Evy"],
+    13: ["Agne", "Agnar"],
+    14: ["Valentin"],
+    15: ["Sigfrid"],
+    16: ["Julia", "Julianna"],
+    17: ["Alexandra", "Sandra"],
+    18: ["Frida", "Frieda"],
+    19: ["Gunborg", "Gunvor"],
+    20: ["Viviann", "Viveka"],
+    21: ["Hilding"],
+    22: ["Hemming", "Henning"],
+    23: ["Torsten", "Thorsten"],
+    24: ["Mattias", "Matteus"],
+    25: ["Sigvard", "Sivert"],
+    26: ["Torgny", "Torkel"],
+    27: ["Lage", "Ragnar"],
+    28: ["Maria", "Maja"],
+    29: ["Selma", "Filippa"]
+  },
+  { // Mars
+    1:  ["Albin", "Elvira"],
+    2:  ["Ernst", "Ernesta"],
+    3:  ["Gunnel", "Gunnhild"],
+    4:  ["Adrian", "Adriana"],
+    5:  ["Tora", "Tove"],
+    6:  ["Ebba", "Edvina"],
+    7:  ["Nils"],
+    8:  ["Siv", "Saga"],
+    9:  ["Torbjörn", "Torborg"],
+    10: ["Edla", "Edit"],
+    11: ["Edvin", "Edmund"],
+    12: ["Viktoria"],
+    13: ["Greger", "Gregorius"],
+    14: ["Matilda", "Maud"],
+    15: ["Kristoffer", "Christoffer"],
+    16: ["Herbert", "Gilbert"],
+    17: ["Gertrud"],
+    18: ["Edvard", "Edward"],
+    19: ["Josef", "Josefina"],
+    20: ["Joakim", "Kim"],
+    21: ["Bengt"],
+    22: ["Kennet", "Kent"],
+    23: ["Gerda", "Gerd"],
+    24: ["Gabriel", "Rafael"],
+    25: ["Marie"],
+    26: ["Emanuel", "Manuel"],
+    27: ["Rudolf", "Rolf"],
+    28: ["Malkolm", "Columba"],
+    29: ["Jonas", "Jens"],
+    30: ["Holger", "Holmger"],
+    31: ["Ester", "Estera"]
+  },
+  { // April
+    1:  ["Harald", "Harry"],
+    2:  ["Gudmunda", "Ingemunda"],
+    3:  ["Ferdinand", "Nanny"],
+    4:  ["Marianne", "Viveka"],
+    5:  ["Irene", "Irja"],
+    6:  ["Vilhelm", "Willy"],
+    7:  ["Sunniva", "Synne"],
+    8:  ["Nadja", "Tanja"],
+    9:  ["Otto", "Ottilia"],
+    10: ["Ingvar", "Ingvor"],
+    11: ["Ulf", "Ylva"],
+    12: ["Liv", "Olivia"],
+    13: ["Artur", "Douglas"],
+    14: ["Tiburtius"],
+    15: ["Evelyn"],
+    16: ["Patrik", "Patricius"],
+    17: ["Elias", "Elis"],
+    18: ["David", "Davida"],
+    19: ["Olaus", "Ola"],
+    20: ["Amalia", "Amelie"],
+    21: ["Anslem", "Anselmo"],
+    22: ["Allan", "Glenn"],
+    23: ["Georg", "Göran"],
+    24: ["Vega", "Veronika"],
+    25: ["Markus", "Marcus"],
+    26: ["Teresia", "Therese"],
+    27: ["Engelbrekt"],
+    28: ["Ture", "Tyra"],
+    29: ["Tyko"],
+    30: ["Mariana"]
+  },
+  { // Maj
+    1:  ["Valborg"],
+    2:  ["Filip", "Filippa"],
+    3:  ["John", "Jane"],
+    4:  ["Monika", "Monica"],
+    5:  ["Gotthard", "Erhard"],
+    6:  ["Marit", "Margit"],
+    7:  ["Carina", "Carita"],
+    8:  ["Åke", "Acke"],
+    9:  ["Reidar", "Reidun"],
+    10: ["Esbjörn", "Styrbjörn"],
+    11: ["Märta", "Märit"],
+    12: ["Majken", "Maja"],
+    13: ["Servatius", "Lillemor"],
+    14: ["Halvard", "Hallvard"],
+    15: ["Sofia", "Sonja"],
+    16: ["Aron", "Ronny"],
+    17: ["Torborg", "Torun"],
+    18: ["Erik"],
+    19: ["Inga", "Ingalill"],
+    20: ["Karolina", "Carola"],
+    21: ["Konstantin", "Conny"],
+    22: ["Henning", "Henny"],
+    23: ["Desideria", "Desirée"],
+    24: ["Ivan", "Vanja"],
+    25: ["Urban"],
+    26: ["Vilhelmina"],
+    27: ["Beda"],
+    28: ["Barbro", "Bibi"],
+    29: ["Gunlog", "Gunlög"],
+    30: ["Vera"],
+    31: ["Petronella", "Pernilla"]
+  },
+  { // Juni
+    1:  ["Justinus", "Justin"],
+    2:  ["Rutger", "Roger"],
+    3:  ["Ingemar", "Gudmar"],
+    4:  ["Solbritt", "Solveig"],
+    5:  ["Bonifatius", "Bo"],
+    6:  ["Gustav"],
+    7:  ["Robert", "Robin"],
+    8:  ["Malena", "Magdalena"],
+    9:  ["Börje", "Boris"],
+    10: ["Signe", "Sigyn"],
+    11: ["Bertil", "Bernt"],
+    12: ["Eskil"],
+    13: ["Aina", "Aino"],
+    14: ["Håkon", "Håkan"],
+    15: ["Magnhild", "Magna"],
+    16: ["Axel", "Axelina"],
+    17: ["Torsten", "Thorstein"],
+    18: ["Björn"],
+    19: ["Germund", "Folke"],
+    20: ["Linda"],
+    21: ["Alf", "Alvar"],
+    22: ["Paulina", "Pauline"],
+    23: ["Adolf", "Adolfina"],
+    24: ["Johannes", "Hans"],
+    25: ["David", "Salomon"],
+    26: ["Rakel", "Rickard"],
+    27: ["Selma", "Fingal"],
+    28: ["Leo", "Leona"],
+    29: ["Peter", "Petra"],
+    30: ["Elof", "Leif"]
+  },
+  { // Juli
+    1:  ["Åsmund", "Ásmund"],
+    2:  ["Rosanna", "Rosa"],
+    3:  ["Laila", "Leila"],
+    4:  ["Ulrica", "Ulla"],
+    5:  ["Ragnhild", "Ragnvald"],
+    6:  ["Esaias", "Jessika"],
+    7:  ["Klas", "Niklas"],
+    8:  ["Kjerstin", "Stina"],
+    9:  ["Jörgen", "Örjan"],
+    10: ["Annika", "Anika"],
+    11: ["Eleonora", "Eleonore"],
+    12: ["Herman"],
+    13: ["Joel", "Judit"],
+    14: ["Folkmar"],
+    15: ["Ragnfrid"],
+    16: ["Reinhold", "Reine"],
+    17: ["Sibylla"],
+    18: ["Fredrik", "Fritz"],
+    19: ["Sara", "Sarita"],
+    20: ["Margareta", "Greta"],
+    21: ["Viktor"],
+    22: ["Magdalena"],
+    23: ["Emma"],
+    24: ["Kristina", "Kerstin"],
+    25: ["Jakob"],
+    26: ["Jesper", "Jasper"],
+    27: ["Marta"],
+    28: ["Botvid", "Seved"],
+    29: ["Olof", "Olov"],
+    30: ["Algot"],
+    31: ["Helena", "Elin"]
+  },
+  { // Augusti
+    1:  ["Per", "Peder"],
+    2:  ["Karin", "Karina"],
+    3:  ["Tage", "Dagmar"],
+    4:  ["Silvia", "Silvana"],
+    5:  ["Ulrika"],
+    6:  ["Alfons", "Alfonso"],
+    7:  ["Dennis", "Denise"],
+    8:  ["Sanna", "Susanna"],
+    9:  ["Roland"],
+    10: ["Lars"],
+    11: ["Susanne", "Sanne"],
+    12: ["Klara"],
+    13: ["Kaj", "Kaja"],
+    14: ["Uno", "Unn"],
+    15: ["Stefania", "Stephania"],
+    16: ["Brynolf"],
+    17: ["Astor"],
+    18: ["Ellen", "Lena"],
+    19: ["Magnus", "Måns"],
+    20: ["Bernhard", "Bernhardine"],
+    21: ["Jon", "Jonatan"],
+    22: ["Henrietta", "Harriet"],
+    23: ["Sture"],
+    24: ["Bartolomeus"],
+    25: ["Lois", "Louis"],
+    26: ["Östen"],
+    27: ["Reine", "Renata"],
+    28: ["Stellan"],
+    29: ["Hans"],
+    30: ["Albert", "Albertina"],
+    31: ["Arvid", "Vidar"]
+  },
+  { // September
+    1:  ["Samuel", "Samuela"],
+    2:  ["Justina"],
+    3:  ["Alfhild", "Elvira"],
+    4:  ["Gundela", "Gundborg"],
+    5:  ["Adela", "Heidi"],
+    6:  ["Lena", "Magdalena"],
+    7:  ["Regina", "Regine"],
+    8:  ["Alma", "Hulda"],
+    9:  ["Anita", "Rita"],
+    10: ["Dag", "Dagny"],
+    11: ["Dagmar"],
+    12: ["Åslög", "Åse"],
+    13: ["Sture", "Sturell"],
+    14: ["Helga Kors"],
+    15: ["Sigrun"],
+    16: ["Cornelia", "Cornelius"],
+    17: ["Hildegard"],
+    18: ["Orvar"],
+    19: ["Fredrika", "Friederike"],
+    20: ["Elise", "Lisa"],
+    21: ["Matteus"],
+    22: ["Maurits", "Moritz"],
+    23: ["Tekla"],
+    24: ["Gerhard", "Ingegerd"],
+    25: ["Konrad", "Kurt"],
+    26: ["Evy", "Evita"],
+    27: ["Dag", "Dagny"],
+    28: ["Sten", "Stenbjörn"],
+    29: ["Mikael", "Mikaela"],
+    30: ["Helge", "Helga"]
+  },
+  { // Oktober
+    1:  ["Ragnar", "Ragnhild"],
+    2:  ["Ingemar"],
+    3:  ["Evald", "Osvald"],
+    4:  ["Frans", "Franciskus"],
+    5:  ["Bror", "Brynhild"],
+    6:  ["Birgit", "Birgitta"],
+    7:  ["Birgitta"],
+    8:  ["Nils", "Nikolaus"],
+    9:  ["Ingrid"],
+    10: ["Harry", "Harriet"],
+    11: ["Fridtjof", "Fridolf"],
+    12: ["Valfrid"],
+    13: ["Sigrid", "Sigrun"],
+    14: ["Stellan"],
+    15: ["Katarina", "Katja"],
+    16: ["Finn"],
+    17: ["Antonia"],
+    18: ["Lukas", "Luca"],
+    19: ["Tore", "Tor"],
+    20: ["Sibylla", "Sybil"],
+    21: ["Ursula", "Ursina"],
+    22: ["Marika", "Kia"],
+    23: ["Severin", "Sören"],
+    24: ["Evert", "Ewert"],
+    25: ["Inga", "Ingalill"],
+    26: ["Amanda", "Amandus"],
+    27: ["Sabina"],
+    28: ["Simon", "Simone"],
+    29: ["Viola"],
+    30: ["Elsa", "Elsie"],
+    31: ["Egon"]
+  },
+  { // November
+    1:  [],
+    2:  ["Alvar", "Alfons"],
+    3:  ["Hubert", "Hugo"],
+    4:  ["Sverker", "Sixten"],
+    5:  ["Eugenia", "Eugen"],
+    6:  ["Gustav Adolf"],
+    7:  ["Ingegerd"],
+    8:  ["Vendela", "Wendela"],
+    9:  ["Teodor", "Teodora"],
+    10: ["Martina"],
+    11: ["Mårten", "Martin"],
+    12: ["Konrad", "Kord"],
+    13: ["Kristian", "Krister"],
+    14: ["Emil", "Emilia"],
+    15: ["Leopold", "Leopolda"],
+    16: ["Edvard", "Edmund"],
+    17: ["Naemi", "Noomi"],
+    18: ["Lillemor", "Lillevi"],
+    19: ["Pontus"],
+    20: ["Absalon"],
+    21: ["Gunhild", "Hillevi"],
+    22: ["Cecilia"],
+    23: ["Klemens", "Klementina"],
+    24: ["Florus", "Gudlög"],
+    25: ["Katarina"],
+    26: ["Linus"],
+    27: ["Astrid", "Asta"],
+    28: ["Malte"],
+    29: ["Sune", "Loke"],
+    30: ["Andreas", "Anders"]
+  },
+  { // December
+    1:  ["Oskar", "Ossian"],
+    2:  ["Beata", "Beatrix"],
+    3:  ["Lydia", "Ledia"],
+    4:  ["Barbara"],
+    5:  ["Sven", "Svante"],
+    6:  ["Nikolaus", "Nikolas"],
+    7:  ["Angela", "Anke"],
+    8:  ["Virginia", "Mikaela"],
+    9:  ["Anna", "Hanna"],
+    10: ["Malin", "Malena"],
+    11: ["Daniel", "Daniela"],
+    12: ["Alexander", "Alexei"],
+    13: ["Lucia"],
+    14: ["Sten", "Sixten"],
+    15: ["Gottfried", "Gottfrid"],
+    16: ["Assar"],
+    17: ["Edna", "Natalia"],
+    18: ["Abraham", "Olov"],
+    19: ["Isak", "Isadora"],
+    20: ["Amadeus", "Ottokar"],
+    21: ["Tomas"],
+    22: ["Johanna", "Hannes"],
+    23: ["Adam"],
+    24: ["Adam", "Eva"],
+    25: ["Dagmar"],
+    26: ["Stefan", "Staffan"],
+    27: ["Johannes", "Johan"],
+    28: ["Abel", "Set"],
+    29: ["Jonatan", "Natan"],
+    30: ["Gunnar", "Gunder"],
+    31: ["Sylvester"]
+  }
+];
+
+const MONTHS_SV = [
+  "", "Januari", "Februari", "Mars", "April", "Maj", "Juni",
+  "Juli", "Augusti", "September", "Oktober", "November", "December"
+];
+
+function getNames(month, day) {
+  const m = NAMEDAYS[month];
+  if (!m) return [];
+  return m[day] || [];
+}
+
+function isLeapYear(year) {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+function daysInMonth(month, year) {
+  return new Date(year, month, 0).getDate();
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString("sv-SE", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric"
+  });
+}
+
+// Render today's name day card
+function renderToday() {
+  const today = new Date();
+  const m = today.getMonth() + 1;
+  const d = today.getDate();
+  const names = getNames(m, d);
+  const card = document.getElementById("today-card");
+  card.innerHTML = `
+    <div class="label">Idag firas</div>
+    <div class="date">${formatDate(today)}</div>
+    ${names.length
+      ? `<div class="names">${names.join(" & ")}</div>`
+      : `<div class="no-nameday">Ingen namnsdag idag</div>`}
+  `;
+}
+
+// Build the full calendar grid
+function renderCalendar() {
+  const today = new Date();
+  const todayM = today.getMonth() + 1;
+  const todayD = today.getDate();
+  const year = today.getFullYear();
+  const grid = document.getElementById("months-grid");
+
+  for (let m = 1; m <= 12; m++) {
+    const days = daysInMonth(m, year);
+    const card = document.createElement("div");
+    card.className = "month-card";
+
+    let rows = "";
+    for (let d = 1; d <= days; d++) {
+      // daysInMonth() returns the correct number of days for the year, including leap years
+      const names = getNames(m, d);
+      const isToday = m === todayM && d === todayD;
+      const rowClass = isToday ? "day-row today" : (names.length === 0 ? "day-row no-name" : "day-row");
+      rows += `<div class="${rowClass}">
+        <span class="day-num">${d}</span>
+        <span class="day-names">${names.length ? names.join(", ") : "&mdash;"}</span>
+      </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="month-header">${MONTHS_SV[m]}</div>
+      <div class="days-list">${rows}</div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+// Search for a name
+function searchName() {
+  const query = document.getElementById("search-input").value.trim().toLowerCase();
+  const resultEl = document.getElementById("search-result");
+
+  if (!query) {
+    resultEl.style.display = "none";
+    return;
+  }
+
+  const matches = [];
+  for (let m = 1; m <= 12; m++) {
+    const monthData = NAMEDAYS[m];
+    for (const [day, names] of Object.entries(monthData)) {
+      for (const name of names) {
+        if (name.toLowerCase().includes(query)) {
+          matches.push({ month: m, day: parseInt(day, 10), name });
+        }
+      }
+    }
+  }
+
+  resultEl.style.display = "block";
+  if (matches.length > 0) {
+    resultEl.className = "search-result found";
+    const list = matches.map(
+      ({ month, day, name }) =>
+        `<strong>${name}</strong> firas den <strong>${day} ${MONTHS_SV[month]}</strong>`
+    ).join("<br>");
+    resultEl.innerHTML = list;
+  } else {
+    resultEl.className = "search-result not-found";
+    resultEl.innerHTML = `Inget namn hittades för &ldquo;<strong>${query}</strong>&rdquo;`;
+  }
+}
+
+// Allow searching with Enter key
+document.getElementById("search-input").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") searchName();
+});
+
+// Initialise
+renderToday();
+renderCalendar();
+</script>
+</body>
+</html>
